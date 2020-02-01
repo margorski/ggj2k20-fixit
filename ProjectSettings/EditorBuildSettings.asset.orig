@@ -15,12 +15,11 @@ EditorBuildSettings:
     path: Assets/Scenes/FixitEditor.unity
     guid: 938761f83fe5c414f86d104c7f2405c5
   - enabled: 1
+<<<<<<< Updated upstream
     path: Assets/Scenes/WyjczyEtap.unity
     guid: 9793ed0dcde8cd545891b7d467739903
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 1
+=======
     path: Assets/Scenes/tmoroz/TomaszMoroznajlepszykoder.unity
-    guid: 041ff6d9f5bb76d409d0f740c17c4462
+    guid: 782b6df4f1e80c5419988701f29a3014
+>>>>>>> Stashed changes
   m_configObjects: {}

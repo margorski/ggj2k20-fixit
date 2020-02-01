@@ -32,7 +32,7 @@ namespace Assets.Scripts.FixItEditor.Models
         /// <summary>
         /// mocked - need to be derived by class!
         /// </summary>
-        public BoxType BoxType { get => BoxType.Action; }
+        public BoxType BoxType { get => BoxType.INPUT_ONE; }
         public List<IBoxModel> TargetBoxes { get => _targetBoxes; }
         public List<IBoxModel> SourceBoxes { get => _sourceBoxes; }
 

@@ -3,54 +3,87 @@
 public class PlayerMovement : MonoBehaviour
 {
     public Rigidbody rb;
-    bool isMoveRight = true;
-    public bool canJump = false;
-    // Update is called once per frame
 
-    void OnCollisionEnter(Collision colliderName)
+    private bool inAir = true;
+    private Vector2 speed = Vector2.zero;
+
+    public const float MOVE_SPEED = 2.0f;
+    public const float JUMP_SPEED = 5.0f;
+    public const float GRAVITY = -15.0f;
+    private GameManager gameManager;
+    private Rigidbody rigidBody;
+    private void Awake()
     {
-        if (colliderName.collider.tag == "Ground")
+        gameManager = (GameManager)FindObjectOfType(typeof(GameManager));
+        rigidBody = GetComponent<Rigidbody>();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        var playerCollider = GetComponent<Collider>();
+        if (collision.collider.bounds.max.y >= playerCollider.bounds.min.y)
         {
-            canJump = true;
+            inAir = false;
+            speed.y = 0.0f;
+            float deltaMove = playerCollider.bounds.min.y - collision.collider.bounds.max.y;
         }
     }
 
-    void OnCollisionExit(Collision colliderName)
+    private void OnCollisionExit(Collision collision)
     {
-        
-        if (colliderName.collider.tag == "Ground")
-        {
-            canJump = false;
-        }
+        inAir = true;    
     }
-    void FixedUpdate()
+
+    private void HandleInput()
     {
-        //rb.AddForce(10000 * Time.deltaTime, 0, 0);
-        if (Input.GetKey("d") /*&& buttonactive*/)
+        if (gameManager == null) return;
+
+        var keycodes = gameManager.gamestate.keycodes;
+
+        if (keycodes.ContainsKey(MovementAction.LEFT) && Input.GetKey(keycodes[MovementAction.LEFT]))
         {
-            isMoveRight = true;
-            rb.AddForce(1000*Time.deltaTime, 0, 0);
+            speed.x = -MOVE_SPEED;
         }
-        if (Input.GetKey("space"))
+        else if (keycodes.ContainsKey(MovementAction.RIGHT) && Input.GetKey(keycodes[MovementAction.RIGHT]))
         {
-            if (canJump)
+            speed.x = MOVE_SPEED;
+        }
+        else
+        {
+            speed.x = 0.0f;
+        }
+
+        if (keycodes.ContainsKey(MovementAction.UP) && Input.GetKey(keycodes[MovementAction.UP]))
+        {
+            // Do nothing
+        }
+        if (keycodes.ContainsKey(MovementAction.DOWN) && Input.GetKey(keycodes[MovementAction.DOWN]))
+        {
+            // Duck
+        }
+        if (keycodes.ContainsKey(MovementAction.ACTION1) && Input.GetKeyDown(keycodes[MovementAction.ACTION1]))
+        {
+            if (!inAir)
             {
-                Debug.Log("dupa");
-                if (isMoveRight)
-                {
-                    rb.AddForce(0, 150f, 0);
-                }
-                else
-                {
-                    rb.AddForce(0, 150f, 0);
-                }
+                inAir = true;
+                speed.y = JUMP_SPEED;
             }
         }
-        if (Input.GetKey("a"))
+        if (keycodes.ContainsKey(MovementAction.ACTION2) && Input.GetKeyDown(keycodes[MovementAction.ACTION2]))
         {
-            isMoveRight = false;
-            rb.AddForce(-1000 * Time.deltaTime, 0, 0);
+            // Do nothing
         }
-        
+    }
+
+    private void FixedUpdate()
+    {
+        HandleInput();
+
+        if (inAir) speed.y += GRAVITY * Time.deltaTime;
+        rigidBody.velocity = new Vector3(
+            speed.x,
+            speed.y,
+            0.0f
+        );
     }
 }
