@@ -1,46 +1,147 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class NetworkManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private TcpClient tcpClient;
+    private TcpListener tcpListener;
+    private TcpClient connectedTcpClient;
+    private Thread tcpListenerThread;
+    private Thread tcpClientThread;
+    private NetworkMessage incomingMessage;
+    public int _port = 7531;
 
-    // Update is called once per frame
-    void Update()
+    public string GetStatus()
     {
-        
+        if (tcpListener != null && tcpListener.Server != null)
+        {
+            return $"Server: {tcpListener.Server.Connected.ToString()}";
+        }
+        if (tcpClient != null && tcpClient.Client != null)
+        {
+            return $"Client: {tcpClient.Client.Connected.ToString()}";
+        }
+        return "-------";
     }
-
-    public void StartServer()
-    {
-        Debug.Log("Start server");
-    }
-
-    public void StartClient(string ip)
-    {
-        Debug.Log($"Start client {ip}");
-    }
-
-    public string GetIp()
+    public IPAddress GetIp()
     {
         IPHostEntry host;
-        string localIP = "0.0.0.0";
         host = Dns.GetHostEntry(Dns.GetHostName());
         foreach (IPAddress ip in host.AddressList)
         {
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
-                localIP = ip.ToString();
-                break;
+                return ip;
             }
         }
-        return localIP;
+        return IPAddress.None;
     }
+
+    #region server
+    public void StartServer()
+    {
+        Debug.Log("Starting server");
+
+        tcpListener = new TcpListener(GetIp(), _port);
+        tcpListener.Start();
+        tcpListenerThread = new Thread(new ThreadStart(ListenForIncommingRequests));
+        tcpListenerThread.IsBackground = true;
+        tcpListenerThread.Start();
+    }
+
+    private void ListenForIncommingRequests()
+    {
+        try
+        {
+            Byte[] bytes = new Byte[1024];
+            while (true)
+            {
+                if (connectedTcpClient == null)
+                    connectedTcpClient = tcpListener.AcceptTcpClient();
+            }
+        }
+        catch (SocketException socketException)
+        {
+            Debug.Log("SocketException " + socketException.ToString());
+        }
+    }
+
+    public void SendMessage(NetworkMessage message)
+    {
+        if (connectedTcpClient == null)
+        {
+            return;
+        }
+        try
+        {
+            // Get a stream object for writing. 			
+            NetworkStream stream = connectedTcpClient.GetStream();
+            if (stream.CanWrite)
+            {
+                string serverMessage = JsonUtility.ToJson(message);
+                // Convert string message to byte array.                 
+                byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(serverMessage);
+                // Write byte array to socketConnection stream.               
+                stream.Write(serverMessageAsByteArray, 0, serverMessageAsByteArray.Length);
+                Debug.Log("Server sent his message - should be received by client");
+            }
+        }
+        catch (SocketException socketException)
+        {
+            Debug.Log("Socket exception: " + socketException);
+        }
+    }
+    #endregion
+
+    #region client
+    public void StartClient(string ip)
+    {
+        Debug.Log($"Starting client");
+        try
+        {
+            tcpClient = new TcpClient(ip, _port);
+            tcpClientThread = new Thread(new ThreadStart(ReceiveMessage));
+            tcpClientThread.IsBackground = true;
+            tcpClientThread.Start();
+        }
+        catch (SocketException socketException)
+        {
+            Debug.Log("Socket exception: " + socketException);
+        }
+    }
+
+    public void ReceiveMessage()
+    {
+        Byte[] bytes = new Byte[1024];
+        while (true)
+        {
+            // Get a stream object for reading 				
+            using (NetworkStream stream = tcpClient.GetStream())
+            {
+                int length;
+                // Read incomming stream into byte arrary. 					
+                while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                {
+                    var incommingData = new byte[length];
+                    Array.Copy(bytes, 0, incommingData, 0, length);
+                    // Convert byte array to string message. 						
+                    incomingMessage = JsonUtility.FromJson<NetworkMessage>(Encoding.ASCII.GetString(incommingData));
+                    Debug.Log("server message received as: " + incomingMessage);
+                }
+            }
+        }
+    }
+
+    public NetworkMessage GetMessage()
+    {
+        return incomingMessage;
+    }
+    #endregion
 }

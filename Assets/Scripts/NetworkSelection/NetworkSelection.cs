@@ -10,6 +10,9 @@ public class NetworkSelectionState {
 public class NetworkSelection : MonoBehaviour
 {
     public Text txtIp;
+    public Text txtStatus;
+    public Text txtMessage;
+
     public Button startClient;
     public Button startServer;
     public InputField ipInput;
@@ -23,7 +26,7 @@ public class NetworkSelection : MonoBehaviour
         networkManager = gameObject.GetComponent<NetworkManager>();
         startClient.onClick.AddListener(OnStartClientClick);
         startServer.onClick.AddListener(OnStartServerClick);
-        InvokeRepeating("ProcessNetworkSelection", 0, 0.5f);
+        InvokeRepeating("OnPeriodicalUpdate", 0, 0.5f);
     }
 
     // Update is called once per frame
@@ -32,10 +35,13 @@ public class NetworkSelection : MonoBehaviour
         
     }
 
-    void ProcessNetworkSelection()
+    void OnPeriodicalUpdate()
     {
-        Debug.Log("ProcessNetworkSelection: 500ms interval");
-        txtIp.text = networkManager.GetIp();
+        txtIp.text = networkManager.GetIp().ToString();
+        txtStatus.text = networkManager.GetStatus();
+        txtMessage.text = JsonUtility.ToJson(networkManager.GetMessage());
+
+        networkManager.SendMessage(new NetworkMessage());
     }
 
     void OnStartClientClick()
