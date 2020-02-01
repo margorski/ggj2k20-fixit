@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.FixItEditor.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,11 +29,23 @@ namespace Assets.Scripts.FixItEditor.Models
 
         public void Start()
         {
-            AddBox(new BaseBoxModel(), new BoxPoint(0,0));
-            AddBox(new BaseBoxModel(), new BoxPoint(3,3));
-            AddBox(new BaseBoxModel(), new BoxPoint(-3,-3));
-            AddBox(new BaseBoxModel(), new BoxPoint(3,-3));
-            AddBox(new BaseBoxModel(), new BoxPoint(-3,3));
+            var in_act1 = new BaseBoxModel(BoxType.INPUT_ACTION_1);
+            var in_left = new BaseBoxModel(BoxType.INPUT_LEFT);
+            var in_right = new BaseBoxModel(BoxType.INPUT_RIGHT);
+            var ac_left = new BaseBoxModel(BoxType.ACTION_GO_LEFT);
+            var ac_right = new BaseBoxModel(BoxType.ACTION_GO_RIGHT);
+            var ac_jump = new BaseBoxModel(BoxType.ACTION_JUMP);
+
+            AddBox(in_act1 ,   new BoxPoint(0,0));
+            AddBox(in_left ,   new BoxPoint(3,3));
+            AddBox(in_right,   new BoxPoint(-3,-3));
+            AddBox(ac_left ,   new BoxPoint(3,-3));
+            AddBox(ac_right,   new BoxPoint(-3,3));
+            AddBox(ac_jump ,   new BoxPoint(1,3));
+
+            AddConnection(in_right, ac_jump);
+            AddConnection(in_left, ac_right);
+            AddConnection(in_act1, ac_left);
         }
 
         public void AddBox(IBoxModel box, BoxPoint point)
