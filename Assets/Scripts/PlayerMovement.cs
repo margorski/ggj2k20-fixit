@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
 
     public const float MOVE_SPEED = 2.0f;
     public const float JUMP_SPEED = 5.0f;
-    public const float GRAVITY = -15.0f;
+    public const float GRAVITY = -25.0f;
     private GameManager gameManager;
     private Rigidbody rigidBody;
     private void Awake()
@@ -77,11 +77,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        HandleInput();
+        //HandleInput();
 
-        if (inAir) speed.y += GRAVITY * Time.deltaTime;
+        var gamestate = gameManager.gamestate;
+
+        speed.y = JUMP_SPEED * gamestate.playerSpeed.y;
+        if (inAir) speed.y += GRAVITY * Time.deltaTime * (1.0f + gamestate.GravityModifier);
+
         rigidBody.velocity = new Vector3(
-            speed.x,
+            MOVE_SPEED * gamestate.playerSpeed.x,
             speed.y,
             0.0f
         );
