@@ -8,6 +8,18 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
 
+public enum NetworkType
+{
+    CLIENT,
+    SERVER,
+    NONE
+}
+public class NetworkStatus
+{
+    public NetworkType networkType = NetworkType.NONE;
+    public bool connected;
+}
+
 public class NetworkManager : MonoBehaviour
 {
     private TcpClient tcpClient;
@@ -18,19 +30,24 @@ public class NetworkManager : MonoBehaviour
     private NetworkMessage incomingMessage;
     public int _port = 7531;
 
-    public string GetStatus()
+    public NetworkType GetNetworkType()
     {
-        if (tcpListener != null && tcpListener.Server != null)
-        {
-            var connectedLabel = connectedTcpClient != null ? "CONNECTED" : "NOT CONNECTED";
-            return $"Server: {connectedLabel}";
-        }
-        if (tcpClient != null && tcpClient.Client != null)
-        {
-            return $"Client: {tcpClient.Client.Connected.ToString()}";
-        }
-        return "";
+        NetworkType networkType = NetworkType.NONE;
+        if (tcpClient != null && tcpClient.Client != null) networkType = NetworkType.CLIENT;
+        if (tcpListener != null && tcpListener.Server != null) networkType = NetworkType.SERVER;
+        return networkType;
     }
+
+    public NetworkStatus GetStatus()
+    {
+        var networkType = GetNetworkType();
+        return new NetworkStatus()
+        {
+            networkType = networkType,
+            connected = networkType == NetworkType.SERVER ? connectedTcpClient != null : networkType == NetworkType.CLIENT ? tcpClient.Client.Connected : false
+        };
+    }
+
     public IPAddress GetIp()
     {
         IPHostEntry host;

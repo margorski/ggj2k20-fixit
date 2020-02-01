@@ -28,11 +28,15 @@ public class NetworkSelection : MonoBehaviour
     {
         if (networkManager == null) return;
 
-        startClient.interactable = networkManager != null && networkManager.GetStatus() == "";
-        startServer.interactable = networkManager != null && networkManager.GetStatus() == "";
 
         txtIp.text = networkManager.GetIp().ToString();
-        txtStatus.text = networkManager.GetStatus();
+        NetworkStatus networkStatus = networkManager.GetStatus();
+
+        startClient.interactable = networkManager != null && networkStatus.networkType == NetworkType.NONE;
+        startServer.interactable = networkManager != null && networkStatus.networkType == NetworkType.NONE;
+
+        txtStatus.text = $"{networkStatus.networkType.ToString()}: \tCONNECTED: {networkStatus.connected.ToString()}";
+
         txtMessage.text = JsonUtility.ToJson(networkManager.GetMessage());
 
         networkManager.SendMessage(new NetworkMessage());
