@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assets.Scripts.FixItEditor.Enums
 {
+    [Serializable]
     public enum BoxShape
     {
         Circle, //default undifned shape

@@ -13,6 +13,8 @@ namespace Assets.Scripts.FixItEditor.Models
 
         private NetworkManager networkManagerDupaCwel;
 
+        private readonly Dictionary<uint, IBoxModel> _boxes = new Dictionary<uint, IBoxModel>();
+
         public void Awake()
         {
             networkManagerDupaCwel = FindObjectOfType<NetworkManager>();
@@ -21,7 +23,7 @@ namespace Assets.Scripts.FixItEditor.Models
 
         public void OnPeriodicalUpdate()
         {
-            networkManagerDupaCwel.SendMessage(this);
+            networkManagerDupaCwel?.SendMessage(this);
         }
 
         public void Start()
@@ -33,7 +35,6 @@ namespace Assets.Scripts.FixItEditor.Models
             AddBox(new BaseBoxModel(), new BoxPoint(-3,3));
         }
 
-        private readonly Dictionary<uint, IBoxModel> _boxes = new Dictionary<uint, IBoxModel>();
         public void AddBox(IBoxModel box, BoxPoint point)
         {
             var square = Instantiate(SquarePrefab, new Vector3(point.X, point.Y), new Quaternion());

@@ -104,7 +104,7 @@ public class NetworkManager : MonoBehaviour
             NetworkStream stream = connectedTcpClient.GetStream();
             if (stream.CanWrite)
             {
-                string serverMessage = JsonUtility.ToJson(model.Message);
+                string serverMessage = JsonUtility.ToJson(new NetworkBoxModel() { Boxes = model.Message }) ;
                 // Convert string message to byte array.                 
                 byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(serverMessage);
                 // Write byte array to socketConnection stream.               
@@ -138,7 +138,7 @@ public class NetworkManager : MonoBehaviour
 
     public void ReceiveMessage()
     {
-        Byte[] bytes = new Byte[1024];
+        Byte[] bytes = new Byte[1024 * 1024];
         while (true)
         {
             if (tcpClient.Connected)
@@ -147,13 +147,12 @@ public class NetworkManager : MonoBehaviour
                 using (NetworkStream stream = tcpClient.GetStream())
                 {
                     int length;
-                    // Read incomming stream into byte arrary. 					
+                    // Read incomming stream into byte ARRarry. 					
                     while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
-                        var incommingData = new byte[length];
-                        Array.Copy(bytes, 0, incommingData, 0, length);
+                        var msg = Encoding.ASCII.GetString(bytes);
                         // Convert byte array to string message. 						
-                        incomingMessage = JsonUtility.FromJson<NetworkBoxModel>(Encoding.ASCII.GetString(incommingData));
+                        incomingMessage = JsonUtility.FromJson<NetworkBoxModel>(msg);
                         Debug.Log("server message received as: " + incomingMessage);
                     }
                 }
