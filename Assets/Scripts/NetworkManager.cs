@@ -28,7 +28,7 @@ public class NetworkManager : MonoBehaviour
     private TcpClient connectedTcpClient;
     private Thread tcpListenerThread;
     private Thread tcpClientThread;
-    private NetworkMessage incomingMessage;
+    private NetworkBoxModel incomingMessage;
     public int _port = 7531;
 
     public NetworkType GetNetworkType()
@@ -153,7 +153,7 @@ public class NetworkManager : MonoBehaviour
                         var incommingData = new byte[length];
                         Array.Copy(bytes, 0, incommingData, 0, length);
                         // Convert byte array to string message. 						
-                        incomingMessage = JsonUtility.FromJson<NetworkMessage>(Encoding.ASCII.GetString(incommingData));
+                        incomingMessage = JsonUtility.FromJson<NetworkBoxModel>(Encoding.ASCII.GetString(incommingData));
                         Debug.Log("server message received as: " + incomingMessage);
                     }
                 }
@@ -161,7 +161,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public NetworkMessage GetMessage()
+    public NetworkBoxModel GetMessage()
     {
         return incomingMessage;
     }

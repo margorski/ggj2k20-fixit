@@ -25,11 +25,27 @@ public class GameState
 
 public class GameManager : MonoBehaviour
 {
-    public GameState gamestate { private set; get; } 
-    
+    public GameState gamestate { private set; get; }
+    private NetworkManager networkManager;
+
     private void Awake()
     {
         gamestate = new GameState();
+        networkManager = (NetworkManager)GameObject.FindObjectOfType<NetworkManager>();
         Object.DontDestroyOnLoad(this.gameObject);
+
+
+        InvokeRepeating("OnPeriodicalUpdate", 0, 0.1f);
     }
+
+    private void OnPeriodicalUpdate()
+    {
+        var networkStatus = networkManager.GetStatus();
+        if (networkStatus.connected && networkStatus.networkType == NetworkType.CLIENT)
+        {
+            var message = networkManager.GetMessage();
+        }
+    }
+
+
 }
