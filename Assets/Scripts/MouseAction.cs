@@ -105,6 +105,7 @@ private void Start()
                target == ConnectionCollider)
             {
                 MainEditorModel.RemoveConnection(BoxModel, BoxModel.TargetBoxes.First() /*CHANGE THIS IF MORE THAN 1 CONNECTION*/);
+                ConnectionCollider.SetActive(false);
             }
         }
 
@@ -129,6 +130,10 @@ private void Start()
                         {
                             lineRenderer.SetPosition(0, transform.localPosition);
                             lineRenderer.SetPosition(1, transform.localPosition);
+                        }
+                        else
+                        {
+                            ConnectionCollider.SetActive(true);
                         }
                     }
                 }
