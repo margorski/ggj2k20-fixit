@@ -35,7 +35,7 @@ public class PlayerSlayer : MonoBehaviour
         {
             gdzie += Vector3.down* CHUJ;
         }
-        mojCHuj.AddForce(gdzie);
+        mojCHuj.velocity = gdzie;
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
