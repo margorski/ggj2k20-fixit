@@ -8,10 +8,9 @@ namespace Assets.Scripts.FixItEditor.Models
 {
     public class EditorModel
     {
-        private Dictionary<uint, IBoxModel> _boxes = new Dictionary<uint, IBoxModel>(); // network model
         public void AddBox(IBoxModel box)
         {
-            _boxes.Add(box.Id, box);
+            Message.Add(box.Id, box);
         }
 
         public bool AddConnection(IBoxModel source, IBoxModel target)
@@ -30,7 +29,7 @@ namespace Assets.Scripts.FixItEditor.Models
             return false; //spierdalaj
         }
 
-        public Dictionary<uint, IBoxModel> Message => _boxes;
+        public Dictionary<uint, IBoxModel> Message { get; } = new Dictionary<uint, IBoxModel>();
 
         private List<IBoxModel> GetEndpointSources(IBoxModel box)
         {
