@@ -43,6 +43,10 @@ namespace Assets.Scripts.FixItEditor.Models
         public bool HasTargets => TargetBoxes.Any();
 
         public bool HasSources => SourceBoxes.Any();
+
+        public bool CanShootConnection => MaxOutConnections > TargetBoxes.Count;
+
+        public bool CanAcceptConnection => MaxInConnections > SourceBoxes.Count;
     }
 
 }

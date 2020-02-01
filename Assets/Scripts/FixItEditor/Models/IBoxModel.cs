@@ -21,6 +21,8 @@ namespace Assets.Scripts.FixItEditor.Models
         bool HasSources { get; }
         uint MaxOutConnections { get; }
         uint MaxInConnections { get; }
+        bool CanShootConnection { get; }
+        bool CanAcceptConnection { get; }
 
     }
 }

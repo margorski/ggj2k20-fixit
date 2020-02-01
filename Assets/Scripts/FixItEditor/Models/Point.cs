@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.Scripts.FixItEditor.Models
 {
     public class BoxPoint
     {
-        private float _x;
-        private float _y;
+        public float X;
+        public float Y;
         public BoxPoint(float x, float y)
         {
-            _x = x;
-            _y = y;
+            X = x;
+            Y = y;
+        }
+
+        public Vector3 ToVector3()
+        {
+            return new Vector3(X, Y);
         }
     }
 }

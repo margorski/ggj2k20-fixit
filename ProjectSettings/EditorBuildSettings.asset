@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FixitEditor.unity
     guid: 938761f83fe5c414f86d104c7f2405c5
+  - enabled: 1
+    path: Assets/Scenes/WyjczyEtap.unity
+    guid: 9793ed0dcde8cd545891b7d467739903
   m_configObjects: {}

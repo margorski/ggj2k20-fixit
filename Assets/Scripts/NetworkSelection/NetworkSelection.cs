@@ -49,7 +49,7 @@ public class NetworkSelection : MonoBehaviour
                     break;
 
                 case NetworkType.SERVER:
-                    SceneManager.LoadScene("FixitEditor", LoadSceneMode.Single);
+                    SceneManager.LoadScene("WyjczyEtap", LoadSceneMode.Single);
                     break;
             }
         }
