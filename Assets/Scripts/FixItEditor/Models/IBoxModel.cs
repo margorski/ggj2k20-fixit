@@ -17,6 +17,8 @@ namespace Assets.Scripts.FixItEditor.Models
         BoxType BoxType { get; }
         List<IBoxModel> TargetBoxes { get; }
         List<IBoxModel> SourceBoxes { get; }
+        bool HasTargets { get; }
+        bool HasSources { get; }
         uint MaxOutConnections { get; }
         uint MaxInConnections { get; }
 

@@ -8,13 +8,18 @@ namespace Assets.Scripts.FixItEditor.Models
 {
     public class EditorModel
     {
+        private readonly Dictionary<uint, IBoxModel> _boxes = new Dictionary<uint, IBoxModel>();
         public void AddBox(IBoxModel box)
         {
-            Message.Add(box.Id, box);
+            _boxes.Add(box.Id, box);
         }
 
         public bool AddConnection(IBoxModel source, IBoxModel target)
         {
+            if(!_boxes.ContainsKey(source.Id) || !_boxes.ContainsKey(target.Id))
+            {
+                throw new Exception("Connection of boxes not in list _boxes");
+            }
             if(source.MaxOutConnections > source.TargetBoxes.Count() &&
                target.MaxInConnections > target.SourceBoxes.Count())
             {
@@ -28,13 +33,27 @@ namespace Assets.Scripts.FixItEditor.Models
             }
             return false; //spierdalaj
         }
+        
+        public List<BoxModelSerializable> Message
+        { 
+            get
+            {
+                var message = new List<BoxModelSerializable>();
+                foreach(var box in _boxes)
+                {
+                    var model = new BoxModelSerializable();
+                    model.Populate(box.Value);
+                    message.Add(model);
+                }
+                return message;
+            }
+        }
 
-        public Dictionary<uint, IBoxModel> Message { get; } = new Dictionary<uint, IBoxModel>();
 
         private List<IBoxModel> GetEndpointSources(IBoxModel box)
         {
             List<IBoxModel> sourceBoxes = new List<IBoxModel>();
-            if (!box.SourceBoxes.Any())
+            if (!box.HasSources)
             {
                 sourceBoxes.Add(box);
             }

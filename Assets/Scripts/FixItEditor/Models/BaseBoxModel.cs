@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.FixItEditor.Enums;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Scripts.FixItEditor.Models
@@ -18,7 +19,6 @@ namespace Assets.Scripts.FixItEditor.Models
             }
         }
 
-        private BoxPoint _position;
         private uint _id = GetId();
         private BoxColor _boxColor = BoxColor.White;
         private BoxShape _boxShape = BoxShape.Circle;
@@ -26,9 +26,9 @@ namespace Assets.Scripts.FixItEditor.Models
         private List<IBoxModel> _sourceBoxes = new List<IBoxModel>();
 
         public uint Id { get => _id; }
-        public BoxColor BoxColor { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public BoxShape BoxShape { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-        public BoxPoint BoxPosition { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+        public BoxColor BoxColor { get; set; } = BoxColor.White;
+        public BoxShape BoxShape { get; set; } = BoxShape.Circle;
+        public BoxPoint BoxPosition { get; set; } = new BoxPoint(0,0);
         /// <summary>
         /// mocked - need to be derived by class!
         /// </summary>
@@ -39,6 +39,10 @@ namespace Assets.Scripts.FixItEditor.Models
         public uint MaxOutConnections => 1;
 
         public uint MaxInConnections => 1;
+
+        public bool HasTargets => TargetBoxes.Any();
+
+        public bool HasSources => SourceBoxes.Any();
     }
 
 }

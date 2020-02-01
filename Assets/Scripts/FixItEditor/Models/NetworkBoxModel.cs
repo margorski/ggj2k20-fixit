@@ -6,14 +6,9 @@ using System.Threading.Tasks;
 
 namespace Assets.Scripts.FixItEditor.Models
 {
-    public class BoxPoint
+    [Serializable]
+    public class NetworkBoxModel
     {
-        private float _x;
-        private float _y;
-        public BoxPoint(float x, float y)
-        {
-            _x = x;
-            _y = y;
-        }
+        public List<BoxModelSerializable> Boxes;
     }
 }
