@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class NetworkSelection : MonoBehaviour
 {
@@ -38,8 +39,20 @@ public class NetworkSelection : MonoBehaviour
         txtStatus.text = $"{networkStatus.networkType.ToString()}: \tCONNECTED: {networkStatus.connected.ToString()}";
 
         txtMessage.text = JsonUtility.ToJson(networkManager.GetMessage());
+        
+        if (networkStatus.connected)
+        {
+            switch (networkStatus.networkType)
+            {
+                case NetworkType.CLIENT:
+                    SceneManager.LoadScene("Level1", LoadSceneMode.Single);
+                    break;
 
-        networkManager.SendMessage(new NetworkMessage());
+                case NetworkType.SERVER:
+                    SceneManager.LoadScene("FixitEditor", LoadSceneMode.Single);
+                    break;
+            }
+        }
     }
 
     void OnStartClientClick()
