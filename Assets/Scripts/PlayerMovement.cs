@@ -14,37 +14,26 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rigidBody;
     private void Awake()
     {
-        gameManager = (GameManager)FindObjectOfType(typeof(GameManager));
+        gameManager = FindObjectOfType<GameManager>();
         rigidBody = GetComponent<Rigidbody>();
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        var playerCollider = GetComponent<Collider>();
-        if (collision.collider.bounds.max.y >= playerCollider.bounds.min.y)
-        {
-            inAir = false;
-            speed.y = 0.0f;
-            float deltaMove = playerCollider.bounds.min.y - collision.collider.bounds.max.y;
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        inAir = true;    
-    }
 
     private void HandleInput()
     {
         if (gameManager == null) return;
 
         var keycodes = gameManager.gamestate.keycodes;
+        var isEnabledForWholeEternity = gameManager.gamestate.isEnabledForWholeEternity;
 
-        if (keycodes.ContainsKey(MovementAction.LEFT) && Input.GetKey(keycodes[MovementAction.LEFT]))
+        if ((keycodes.ContainsKey(MovementAction.LEFT) && keycodes[MovementAction.LEFT].HasValue && Input.GetKey(keycodes[MovementAction.LEFT].Value)) ||
+            isEnabledForWholeEternity.Exists(ma => ma == MovementAction.LEFT))
         {
             speed.x = -MOVE_SPEED;
         }
-        else if (keycodes.ContainsKey(MovementAction.RIGHT) && Input.GetKey(keycodes[MovementAction.RIGHT]))
+        else if ((keycodes.ContainsKey(MovementAction.RIGHT) && keycodes[MovementAction.RIGHT].HasValue && Input.GetKey(keycodes[MovementAction.RIGHT].Value)) ||
+                isEnabledForWholeEternity.Exists(ma => ma == MovementAction.RIGHT))
+
         {
             speed.x = MOVE_SPEED;
         }
@@ -53,15 +42,21 @@ public class PlayerMovement : MonoBehaviour
             speed.x = 0.0f;
         }
 
-        if (keycodes.ContainsKey(MovementAction.UP) && Input.GetKey(keycodes[MovementAction.UP]))
+        if ((keycodes.ContainsKey(MovementAction.UP) && keycodes[MovementAction.UP].HasValue && Input.GetKey(keycodes[MovementAction.UP].Value)) ||
+            isEnabledForWholeEternity.Exists(ma => ma == MovementAction.UP))
+
         {
             // Do nothing
         }
-        if (keycodes.ContainsKey(MovementAction.DOWN) && Input.GetKey(keycodes[MovementAction.DOWN]))
+        if ((keycodes.ContainsKey(MovementAction.DOWN) && keycodes[MovementAction.DOWN].HasValue && Input.GetKey(keycodes[MovementAction.DOWN].Value)) ||
+            isEnabledForWholeEternity.Exists(ma => ma == MovementAction.DOWN))
+                
         {
             // Duck
         }
-        if (keycodes.ContainsKey(MovementAction.ACTION1) && Input.GetKeyDown(keycodes[MovementAction.ACTION1]))
+        if ((keycodes.ContainsKey(MovementAction.JUMP) && keycodes[MovementAction.JUMP].HasValue && Input.GetKeyDown(keycodes[MovementAction.JUMP].Value)) ||
+            isEnabledForWholeEternity.Exists(ma => ma == MovementAction.JUMP))
+
         {
             if (!inAir)
             {
@@ -69,7 +64,9 @@ public class PlayerMovement : MonoBehaviour
                 speed.y = JUMP_SPEED;
             }
         }
-        if (keycodes.ContainsKey(MovementAction.ACTION2) && Input.GetKeyDown(keycodes[MovementAction.ACTION2]))
+        if ((keycodes.ContainsKey(MovementAction.ACTION2) && keycodes[MovementAction.ACTION2].HasValue && Input.GetKeyDown(keycodes[MovementAction.ACTION2].Value)) ||
+            isEnabledForWholeEternity.Exists(ma => ma == MovementAction.ACTION2))
+
         {
             // Do nothing
         }
@@ -77,15 +74,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //HandleInput();
+        HandleInput();
 
         var gamestate = gameManager.gamestate;
-
-        speed.y = JUMP_SPEED * gamestate.playerSpeed.y;
-        if (inAir) speed.y += GRAVITY * Time.deltaTime * (1.0f + gamestate.GravityModifier);
+        //if (inAir) speed.y += GRAVITY * Time.deltaTime;
 
         rigidBody.velocity = new Vector3(
-            MOVE_SPEED * gamestate.playerSpeed.x,
+            speed.x,
             speed.y,
             0.0f
         );

@@ -11,18 +11,43 @@ public enum MovementAction
     DOWN,
     LEFT,
     RIGHT,
-    ACTION1,
+    JUMP,
     ACTION2
 }
 public class GameState
 {
-    public Dictionary<MovementAction, KeyCode> keycodes = new Dictionary<MovementAction, KeyCode>() { };
-    public Vector2 playerSpeed = Vector2.zero;
-    public float GravityModifier = 0.0f;
+    public Dictionary<MovementAction, KeyCode?> keycodes = new Dictionary<MovementAction, KeyCode?>() {
+        { MovementAction.JUMP, null },
+        { MovementAction.ACTION2, null },
+        { MovementAction.DOWN, null },
+        { MovementAction.LEFT, null },
+        { MovementAction.RIGHT, null },
+        { MovementAction.UP, null }
+    };
+
+    public List<MovementAction> isEnabledForWholeEternity = new List<MovementAction>();
 }
 
 public class GameManager : MonoBehaviour
 {
+    public static Dictionary<BoxType, MovementAction> movementActionsMapping = new Dictionary<BoxType, MovementAction>()
+    {
+        { BoxType.ACTION_DUCK, MovementAction.DOWN },
+        { BoxType.ACTION_GO_LEFT, MovementAction.LEFT },
+        { BoxType.ACTION_GO_RIGHT, MovementAction.RIGHT },
+        { BoxType.ACTION_JUMP, MovementAction.JUMP}
+    };
+
+    public static Dictionary<BoxType, KeyCode> keycodeMapping = new Dictionary<BoxType, KeyCode>()
+    {
+        { BoxType.INPUT_ACTION_1, KeyCode.Space },
+        { BoxType.INPUT_ACTION_2, KeyCode.LeftAlt },
+        { BoxType.INPUT_DOWN, KeyCode.DownArrow },
+        { BoxType.INPUT_LEFT, KeyCode.LeftArrow },
+        { BoxType.INPUT_RIGHT, KeyCode.RightArrow },
+        { BoxType.INPUT_UP, KeyCode.UpArrow }
+    };
+
     public GameState gamestate { private set; get; }
     private NetworkManager networkManager;
 
@@ -49,43 +74,28 @@ public class GameManager : MonoBehaviour
 
     public void UpdateGamestate(NetworkBoxModel boxModel) 
     {
+        gamestate.isEnabledForWholeEternity.Clear();
         if (boxModel == null || boxModel.Boxes == null) return;
 
-        var startBoxes = boxModel.Boxes.FindAll(box => box.SourceBoxes.Count == 0);
+        var startBoxes = boxModel.Boxes.FindAll(box => box.SourceBoxes.Count == 0 && box.TargetBoxes.Count == 1);
         foreach (var box in startBoxes)
         {
-            RecurrentProcessBox(box, 0.0f, boxModel.Boxes);
-
+            ProcessConnection(box, 0.0f, boxModel.Boxes);
         }
     }
 
-    private void RecurrentProcessBox(BoxModelSerializable box, float input, List<BoxModelSerializable> allboxes)
+    private void ProcessConnection(BoxModelSerializable box, float input, List<BoxModelSerializable> allboxes)
     {
-        switch (box.BoxType)
-        {
-            case BoxType.ACTION_GO_LEFT:
-                gamestate.playerSpeed.x = -input;
-                break;
-            case BoxType.ACTION_GO_RIGHT:
-                gamestate.playerSpeed.x = input;
-                break;
-            case BoxType.ACTION_JUMP:
-                gamestate.playerSpeed.y = input;
-                break;
-            case BoxType.ENVIRONMENT_GRAVITY:
-                gamestate.GravityModifier = input;
-                break;
-        }
+        var targetBox = allboxes.Find(b => b.Id == box.TargetBoxes[0]);
 
-        var output = ActionBlocks.BoxActions[box.BoxType](input);
+        var actionTypes = new List<BoxType>() { BoxType.ACTION_DUCK, BoxType.ACTION_GO_LEFT, BoxType.ACTION_GO_RIGHT, BoxType.ACTION_JUMP };
+        var inputTypes = new List<BoxType>() { BoxType.INPUT_ACTION_1, BoxType.INPUT_ACTION_2, BoxType.INPUT_DOWN, BoxType.INPUT_LEFT, BoxType.INPUT_RIGHT, BoxType.INPUT_UP, BoxType.INPUT_ONE };
 
-        foreach(var targetBoxId in box.TargetBoxes)
-        {
-            var targetBox = allboxes.Find(b => b.Id == targetBoxId);
-            if (targetBox == null) continue;
+        if (!inputTypes.Exists(t => t == box.BoxType)) return;
+        if (!actionTypes.Exists(t => t == targetBox.BoxType)) return;
 
-            RecurrentProcessBox(targetBox, output, allboxes);
-        }
+        if (box.BoxType == BoxType.INPUT_ONE) gamestate.isEnabledForWholeEternity.Add(movementActionsMapping[box.BoxType]);
+        else gamestate.keycodes[movementActionsMapping[targetBox.BoxType]] = keycodeMapping[box.BoxType];
     }
 }
 
