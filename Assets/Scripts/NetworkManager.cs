@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.FixItEditor.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -91,7 +92,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void SendMessage(NetworkMessage message)
+    public void SendMessage(EditorModel model)
     {
         if (connectedTcpClient == null)
         {
@@ -103,7 +104,7 @@ public class NetworkManager : MonoBehaviour
             NetworkStream stream = connectedTcpClient.GetStream();
             if (stream.CanWrite)
             {
-                string serverMessage = JsonUtility.ToJson(message);
+                string serverMessage = JsonUtility.ToJson(model.Message);
                 // Convert string message to byte array.                 
                 byte[] serverMessageAsByteArray = Encoding.ASCII.GetBytes(serverMessage);
                 // Write byte array to socketConnection stream.               
