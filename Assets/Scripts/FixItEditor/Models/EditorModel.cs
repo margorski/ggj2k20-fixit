@@ -64,6 +64,11 @@ namespace Assets.Scripts.FixItEditor.Models
             {
                 throw new Exception($"AddConnection: Boxes not in list _boxes s[{source.Id}]t[{target.Id}]");
             }
+            // NO CHAINSSSS
+            if(source.HasSources || target.HasTargets)
+            {
+                return false;
+            }
             if(source.MaxOutConnections > source.TargetBoxes.Count() &&
                target.MaxInConnections > target.SourceBoxes.Count())
             {
