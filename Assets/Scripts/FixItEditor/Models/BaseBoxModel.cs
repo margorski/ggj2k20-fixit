@@ -22,6 +22,7 @@ namespace Assets.Scripts.FixItEditor.Models
         private uint _id = GetId();
         private BoxColor _boxColor = BoxColor.White;
         private BoxShape _boxShape = BoxShape.Circle;
+        private BoxType _boxType = BoxType.NONE;
         private List<IBoxModel> _targetBoxes = new List<IBoxModel>();
         private List<IBoxModel> _sourceBoxes = new List<IBoxModel>();
 
@@ -29,10 +30,7 @@ namespace Assets.Scripts.FixItEditor.Models
         public BoxColor BoxColor { get; set; } = BoxColor.White;
         public BoxShape BoxShape { get; set; } = BoxShape.Circle;
         public BoxPoint BoxPosition { get; set; } = new BoxPoint(0,0);
-        /// <summary>
-        /// mocked - need to be derived by class!
-        /// </summary>
-        public BoxType BoxType { get => BoxType.INPUT_ONE; }
+        public BoxType BoxType { get => _boxType; }
         public List<IBoxModel> TargetBoxes { get => _targetBoxes; }
         public List<IBoxModel> SourceBoxes { get => _sourceBoxes; }
 
@@ -47,6 +45,11 @@ namespace Assets.Scripts.FixItEditor.Models
         public bool CanShootConnection => MaxOutConnections > TargetBoxes.Count;
 
         public bool CanAcceptConnection => MaxInConnections > SourceBoxes.Count;
+
+        public BaseBoxModel(BoxType type)
+        {
+            _boxType = type;
+        }
     }
 
 }

@@ -14,7 +14,6 @@ public class MouseAction : MonoBehaviour
     public GameObject ConnectionCollider;
     public IBoxModel BoxModel;
     private bool _connectionInProgress = false;
-    private bool _lineRendererSet = false;
 
 private void Start()
     {
@@ -42,23 +41,18 @@ private void Start()
 
     private void connectinLineRender()
     {
-        if(BoxModel.HasTargets)
+        if (BoxModel.HasTargets)
         {
             lineRenderer.SetPosition(0, transform.localPosition);
-            lineRenderer.SetPosition(1, BoxModel.TargetBoxes.First().BoxPosition.ToVector3() );
+            lineRenderer.SetPosition(1, BoxModel.TargetBoxes.First().BoxPosition.ToVector3());
             var vector = lineRenderer.GetPosition(1) - lineRenderer.GetPosition(0);
-
-            if (!_lineRendererSet)
-            {
-                ConnectionCollider.transform.position = vector / 2;
-                var angle = Mathf.Atan2(vector.y, vector.x) * Mathf.Rad2Deg;
-                ConnectionCollider.transform.rotation = new Quaternion();
-                ConnectionCollider.transform.Rotate(0, 0, -angle);
-                ConnectionCollider.transform.localScale = new Vector3(ConnectionCollider.transform.localScale.x, vector.y * 0.9f /*avoid overlap with shape*/);
-                _lineRendererSet = true;
-            }
+            ConnectionCollider.transform.localPosition = vector / 2;
+            var angle = Mathf.Atan2(vector.x, vector.y) * Mathf.Rad2Deg;
+            ConnectionCollider.transform.rotation = new Quaternion();
+            ConnectionCollider.transform.Rotate(0, 0, -angle);
+            ConnectionCollider.transform.localScale = new Vector3(ConnectionCollider.transform.localScale.x, vector.magnitude * 0.8f /*avoid overlap with shape*/);
         }
-        else if(!_connectionInProgress)
+        else if (!_connectionInProgress)
         {
             lineRenderer.SetPosition(0, transform.localPosition);
             lineRenderer.SetPosition(1, transform.localPosition);
@@ -70,7 +64,10 @@ private void Start()
 
     void OnMouseDown()
     {
-        offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+        if (Input.GetMouseButton(0))
+        {
+            offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+        }
     }
 
 
@@ -108,7 +105,6 @@ private void Start()
                target == ConnectionCollider)
             {
                 MainEditorModel.RemoveConnection(BoxModel, BoxModel.TargetBoxes.First() /*CHANGE THIS IF MORE THAN 1 CONNECTION*/);
-                _lineRendererSet = false;
             }
         }
 
@@ -117,29 +113,31 @@ private void Start()
         {
             lineRenderer.SetPosition(0, transform.localPosition);
             lineRenderer.SetPosition(1, Camera.main.ScreenPointToRay(Input.mousePosition).origin);
-            if (target &&
-                target != gameObject)
-            {
-                var mAction = target.GetComponent<MouseAction>();
-                if (mAction)
-                {
-                    _connectionInProgress = false;
-                    if (!MainEditorModel.AddConnection(BoxModel, mAction.BoxModel))
-                    {
-                        lineRenderer.SetPosition(0, transform.localPosition);
-                        lineRenderer.SetPosition(1, transform.localPosition);
-                    }
-                }
-            }
         }
 
         if(Input.GetMouseButtonUp(1))
         {
             if(_connectionInProgress)
             {
+                if (target &&
+                target != gameObject)
+                {
+                    var mAction = target.GetComponent<MouseAction>();
+                    if (mAction)
+                    {
+                        if (!MainEditorModel.AddConnection(BoxModel, mAction.BoxModel))
+                        {
+                            lineRenderer.SetPosition(0, transform.localPosition);
+                            lineRenderer.SetPosition(1, transform.localPosition);
+                        }
+                    }
+                }
+                else
+                {
+                    lineRenderer.SetPosition(0, transform.localPosition);
+                    lineRenderer.SetPosition(1, transform.localPosition);
+                }
                 _connectionInProgress = false;
-                lineRenderer.SetPosition(0, transform.localPosition);
-                lineRenderer.SetPosition(1, transform.localPosition);
             }
         }
 
