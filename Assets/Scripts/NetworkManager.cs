@@ -22,13 +22,14 @@ public class NetworkManager : MonoBehaviour
     {
         if (tcpListener != null && tcpListener.Server != null)
         {
-            return $"Server: {tcpListener.Server.Connected.ToString()}";
+            var connectedLabel = connectedTcpClient != null ? "CONNECTED" : "NOT CONNECTED";
+            return $"Server: {connectedLabel}";
         }
         if (tcpClient != null && tcpClient.Client != null)
         {
             return $"Client: {tcpClient.Client.Connected.ToString()}";
         }
-        return "-------";
+        return "";
     }
     public IPAddress GetIp()
     {
@@ -122,18 +123,21 @@ public class NetworkManager : MonoBehaviour
         Byte[] bytes = new Byte[1024];
         while (true)
         {
-            // Get a stream object for reading 				
-            using (NetworkStream stream = tcpClient.GetStream())
+            if (tcpClient.Connected)
             {
-                int length;
-                // Read incomming stream into byte arrary. 					
-                while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                // Get a stream object for reading 				
+                using (NetworkStream stream = tcpClient.GetStream())
                 {
-                    var incommingData = new byte[length];
-                    Array.Copy(bytes, 0, incommingData, 0, length);
-                    // Convert byte array to string message. 						
-                    incomingMessage = JsonUtility.FromJson<NetworkMessage>(Encoding.ASCII.GetString(incommingData));
-                    Debug.Log("server message received as: " + incomingMessage);
+                    int length;
+                    // Read incomming stream into byte arrary. 					
+                    while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    {
+                        var incommingData = new byte[length];
+                        Array.Copy(bytes, 0, incommingData, 0, length);
+                        // Convert byte array to string message. 						
+                        incomingMessage = JsonUtility.FromJson<NetworkMessage>(Encoding.ASCII.GetString(incommingData));
+                        Debug.Log("server message received as: " + incomingMessage);
+                    }
                 }
             }
         }

@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NetworkSelectionState {
-
-}
-
 public class NetworkSelection : MonoBehaviour
 {
     public Text txtIp;
@@ -17,26 +13,24 @@ public class NetworkSelection : MonoBehaviour
     public Button startServer;
     public InputField ipInput;
     
-    private NetworkManager networkManager;
-    private NetworkSelectionState networkSelectionState = new NetworkSelectionState();
+    public NetworkManager networkManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        networkManager = gameObject.GetComponent<NetworkManager>();
         startClient.onClick.AddListener(OnStartClientClick);
         startServer.onClick.AddListener(OnStartServerClick);
+        if (networkManager != null) ipInput.text = networkManager.GetIp().ToString();
         InvokeRepeating("OnPeriodicalUpdate", 0, 0.5f);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     void OnPeriodicalUpdate()
     {
+        if (networkManager == null) return;
+
+        startClient.interactable = networkManager != null && networkManager.GetStatus() == "";
+        startServer.interactable = networkManager != null && networkManager.GetStatus() == "";
+
         txtIp.text = networkManager.GetIp().ToString();
         txtStatus.text = networkManager.GetStatus();
         txtMessage.text = JsonUtility.ToJson(networkManager.GetMessage());
@@ -46,11 +40,14 @@ public class NetworkSelection : MonoBehaviour
 
     void OnStartClientClick()
     {
+        if (networkManager == null) return;
         networkManager.StartClient(ipInput.text);   
     }
 
     void OnStartServerClick()
     {
+        if (networkManager == null) return;
+
         networkManager.StartServer();
     }
 }
