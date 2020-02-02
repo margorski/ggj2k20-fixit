@@ -75,6 +75,7 @@ public class GameManager : MonoBehaviour
     public void UpdateGamestate(NetworkBoxModel boxModel) 
     {
         gamestate.isEnabledForWholeEternity.Clear();
+        gamestate.keycodes.Clear();
         if (boxModel == null || boxModel.Boxes == null) return;
 
         var startBoxes = boxModel.Boxes.FindAll(box => box.SourceBoxes.Count == 0 && box.TargetBoxes.Count == 1);

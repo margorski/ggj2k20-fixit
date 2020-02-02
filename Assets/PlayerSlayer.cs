@@ -14,7 +14,6 @@ public class PlayerSlayer : MonoBehaviour
     public float CHUJ = 1f;
     public float Skok = 10f;
     public Rigidbody2D mojCHuj;
-    public CapsuleCollider2D gdzieBoliChuj;
     public float Gravity = 5f;
     public float JumpingTime = 0.5f;
 
@@ -25,6 +24,8 @@ public class PlayerSlayer : MonoBehaviour
     private bool IsJumping = false;
     private float JumpTimestamp = 0f;
 
+    private GameManager gameManager;
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -34,11 +35,11 @@ public class PlayerSlayer : MonoBehaviour
             return;
         }
         Vector3 gdzie = new Vector3();
-        if(Input.GetKey(KeyCode.RightArrow))
+        if(isPressed(MovementAction.RIGHT))
         {
             gdzie += Vector3.right * CHUJ;
         }
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (isPressed(MovementAction.LEFT))
         {
             gdzie += Vector3.left * CHUJ;
         }
@@ -66,21 +67,21 @@ public class PlayerSlayer : MonoBehaviour
 
         if (Grounded &&
             !IsJumping &&
-            Input.GetKey(KeyCode.UpArrow))
+            isPressed(MovementAction.JUMP))
         {
             JumpTimestamp = Time.time;
             IsJumping = true;
         }
 
         if(IsJumping &&
-           Input.GetKey(KeyCode.UpArrow) &&
+           isPressed(MovementAction.JUMP) &&
            (Time.time - JumpTimestamp) > JumpingTime)
         {
             IsJumping = false;
         }
 
         if (IsJumping &&
-            !Input.GetKey(KeyCode.UpArrow))
+            !isPressed(MovementAction.JUMP))
         {
             IsJumping = false;
         }
@@ -103,6 +104,22 @@ public class PlayerSlayer : MonoBehaviour
                 mojCHuj.velocity = gdzie;
             }
         }
+    }
+
+    private void Awake()
+    {
+        gameManager = FindObjectOfType<GameManager>();
+    }
+
+    private bool isPressed(MovementAction movementAction)
+    {
+        if (gameManager == null) return false;
+
+        var keycodes = gameManager.gamestate.keycodes;
+        var isEnabledForWholeEternity = gameManager.gamestate.isEnabledForWholeEternity;
+
+        return ((keycodes.ContainsKey(movementAction) && keycodes[movementAction].HasValue && Input.GetKey(keycodes[movementAction].Value)) ||
+                isEnabledForWholeEternity.Exists(ma => ma == movementAction));
     }
 
     public void OnTriggerEnter2D(Collider2D collision)

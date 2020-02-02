@@ -45,7 +45,7 @@ public class NetworkSelection : MonoBehaviour
             switch (networkStatus.networkType)
             {
                 case NetworkType.CLIENT:
-                    SceneManager.LoadScene("TomaszMoroznajlepszykoder", LoadSceneMode.Single);
+                    SceneManager.LoadScene("Level1", LoadSceneMode.Single);
                     break;
 
                 case NetworkType.SERVER:
