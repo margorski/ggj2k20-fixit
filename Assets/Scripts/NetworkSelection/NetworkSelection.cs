@@ -65,6 +65,6 @@ public class NetworkSelection : MonoBehaviour
     {
         if (networkManager == null) return;
 
-        networkManager.StartServer();
+        networkManager.StartServer(ipInput.text);
     }
 }

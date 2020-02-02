@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Linq;
 
 public enum NetworkType
 {
@@ -64,11 +65,11 @@ public class NetworkManager : MonoBehaviour
     }
 
     #region server
-    public void StartServer()
+    public void StartServer(string ip)
     {
         Debug.Log("Starting server");
 
-        tcpListener = new TcpListener(GetIp(), _port);
+        tcpListener = new TcpListener(new IPAddress(ip.Split(new char[]{ '.' }).Select(x => Convert.ToByte(x)).ToArray()), _port);
         tcpListener.Start();
         tcpListenerThread = new Thread(new ThreadStart(ListenForIncommingRequests));
         tcpListenerThread.IsBackground = true;
